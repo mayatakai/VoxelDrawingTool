@@ -1,0 +1,10 @@
+body {
+    background: #111;
+    color: #fff;
+    text-align: center;
+    font-size: 20px;
+    font-family: sans-serif;
+  }
+  #uploadButton {
+    margin: 20px;
+  }
