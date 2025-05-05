@@ -72,3 +72,52 @@ canvas {
   left: 10px;
   z-index: 10;
 }
+
+#colorPalettesContainer {
+  position: relative;
+  top: 70px;
+  left: 10px;
+  z-index: 10;
+  color: white;
+  margin-bottom: 20px;
+}
+
+#paletteButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.paletteBtn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+#pastelPaletteBtn {
+  background: linear-gradient(to right, #fddde6, #d7c0f6, #c5f4f0, #ffe6c9);
+  color: #333;
+}
+
+#neonPaletteBtn {
+  background: linear-gradient(to right, #ff00ff, #00ffff, #00ff00, #ffff00);
+  color: #000;
+}
+
+#earthPaletteBtn {
+  background: linear-gradient(to right, #8B4513, #556B2F, #A0522D, #CD853F);
+  color: white;
+}
+
+#oceanPaletteBtn {
+  background: linear-gradient(to right, #00008B, #0000CD, #4169E1, #87CEEB);
+  color: white;
+}
+
+.paletteBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+}

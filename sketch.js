@@ -5,6 +5,7 @@ let rows = 64; // Number of voxels in the y-direction
 let voxelSize = 20; // Size of each voxel (cube)
 let voxels = []; // Array to store voxel positions and colors
 let editedVoxelsMap = {}; // Map to track which grid positions have been edited (deleted)
+let colorMap = {}; // Map to track custom colors applied to specific positions
 let resolutionSlider; // Slider for adjusting resolution
 let reduceSlider; // Slider for random voxel reduction percentage
 let depthSlider; // Slider for depth scaling
@@ -15,6 +16,55 @@ let selectedVoxel = null; // Variable to store the selected voxel for highlighti
 let selectedVoxels = []; // Array to store voxels with similar colors
 let canvasElement; // Reference to the canvas element
 let undoStack = []; // Stack to store previous states for undo functionality
+
+// Color palettes
+const pastelPalette = ['#fddde6', '#d7c0f6', '#c5f4f0', '#ffe6c9', '#ffd1dc'];
+const neonPalette = ['#ff00ff', '#00ffff', '#00ff00', '#ffff00', '#ff0000'];
+const earthPalette = ['#8B4513', '#556B2F', '#A0522D', '#CD853F', '#6E8B3D'];
+const oceanPalette = ['#00008B', '#0000CD', '#4169E1', '#87CEEB', '#ADD8E6'];
+
+// Function to apply a color palette to voxels
+function applyColorPalette(palette) {
+  // Store current state in undo stack before modifying
+  undoStack.push([...voxels]);
+
+  // Determine which voxels to modify
+  const voxelsToModify = selectedVoxels.length > 0 ? selectedVoxels : voxels;
+  
+  // Sort voxels by brightness for better color mapping
+  voxelsToModify.sort((a, b) => {
+    const brightnessA = (red(a.color) + green(a.color) + blue(a.color)) / 3;
+    const brightnessB = (red(b.color) + green(b.color) + blue(b.color)) / 3;
+    return brightnessA - brightnessB;
+  });
+  
+  // Apply colors from the palette
+  for (let i = 0; i < voxelsToModify.length; i++) {
+    const voxel = voxelsToModify[i];
+    
+    // Map voxel index to palette color index
+    const colorIndex = floor(map(i, 0, voxelsToModify.length - 1, 0, palette.length - 1));
+    const hexColor = palette[colorIndex];
+    
+    // Convert hex to RGB color
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+    
+    // Get grid coordinates for this voxel
+    const gridX = floor((voxel.x + cols * voxelSize / 2) / voxelSize);
+    const gridY = floor((voxel.y + rows * voxelSize / 2) / voxelSize);
+    const key = `${gridX},${gridY}`;
+    
+    // Store the custom color in colorMap
+    colorMap[key] = color(r, g, b);
+    
+    // Update voxel color
+    voxel.color = color(r, g, b);
+  }
+  
+  redraw(); // Update the canvas display
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);  // Ensure WebGL mode is used for 3D
@@ -111,13 +161,35 @@ function setup() {
       redraw(); // Redraw the scene to reflect the selected voxels
     }
   });
+
+  // Add event listeners for palette buttons
+  document.getElementById('pastelPaletteBtn').addEventListener('click', () => {
+    applyColorPalette(pastelPalette);
+  });
+  
+  document.getElementById('neonPaletteBtn').addEventListener('click', () => {
+    applyColorPalette(neonPalette);
+  });
+  
+  document.getElementById('earthPaletteBtn').addEventListener('click', () => {
+    applyColorPalette(earthPalette);
+  });
+  
+  document.getElementById('oceanPaletteBtn').addEventListener('click', () => {
+    applyColorPalette(oceanPalette);
+  });
 }
 
 // Update the selected color display in the HTML
 function updateSelectedColorDisplay(color) {
   const colorDisplay = document.getElementById('selectedColorDisplay');
   if (color) {
-    const [r, g, b, a] = color;
+    // Access color components using p5.js functions instead of destructuring
+    const r = red(color);
+    const g = green(color);
+    const b = blue(color);
+    const a = alpha(color);
+    
     colorDisplay.textContent = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
     colorDisplay.style.color = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
   } else {
@@ -129,6 +201,16 @@ function updateSelectedColorDisplay(color) {
 // Function to update the image and generate voxels
 function updateImageAndVoxels() {
   if (!originalImg) return;
+
+  // Reset color-related data structures for the new image
+  colorMap = {};
+  editedVoxelsMap = {};
+  selectedColor = null;
+  selectedVoxels = [];
+  undoStack = [];
+  
+  // Update the selected color display
+  updateSelectedColorDisplay(null);
 
   let aspectRatio = originalImg.width / originalImg.height;
   let targetWidth = cols * voxelSize;
@@ -162,7 +244,15 @@ function generateVoxels() {
         continue;
       }
 
-      let c = img.get(x * voxelSize, y * voxelSize); // Get pixel color at (x, y)
+      // Get color for this position - either from colorMap or original image
+      let c;
+      if (colorMap[key]) {
+        // Use the custom color if it exists in the colorMap
+        c = colorMap[key];
+      } else {
+        // Otherwise use the color from the image
+        c = img.get(x * voxelSize, y * voxelSize);
+      }
 
       // Extract the brightness (luminance) of the color using the red, green, blue channels
       let brightnessVal = (red(c) + green(c) + blue(c)) / 3;
@@ -248,14 +338,22 @@ function calculateColorDistance(color1, color2) {
   );
 }
 
-// Update the editedVoxelsMap to reflect current voxels
+// Update the editedVoxelsMap and colorMap to reflect current voxels
 function updateEditedVoxelsMap() {
-  editedVoxelsMap = {}; // Reset the map
+  // Reset the maps
+  editedVoxelsMap = {}; 
+  colorMap = {};
+  
   for (const voxel of voxels) {
     const gridX = floor((voxel.x + cols * voxelSize / 2) / voxelSize);
     const gridY = floor((voxel.y + rows * voxelSize / 2) / voxelSize);
     const key = `${gridX},${gridY}`;
+    
+    // Mark as active in edited map
     editedVoxelsMap[key] = 'active';
+    
+    // Store current color in color map
+    colorMap[key] = voxel.color;
   }
 }
 
