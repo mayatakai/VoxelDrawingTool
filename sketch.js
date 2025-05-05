@@ -17,6 +17,7 @@ let selectedVoxels = []; // Array to store voxels with similar colors
 let canvasElement; // Reference to the canvas element
 let undoStack = []; // Stack to store previous states for undo functionality
 let redoStack = []; // Stack to store future states for redo functionality
+let depthMode = 'brightness'; // Default depth calculation mode
 
 // Color palettes
 const pastelPalette = ['#fddde6', '#d7c0f6', '#c5f4f0', '#ffe6c9', '#ffd1dc'];
@@ -305,6 +306,9 @@ function setup() {
 
   // Generate palette buttons
   generatePaletteButtons();
+
+  // Set up depth mode buttons
+  setupDepthModeButtons();
 }
 
 // Update the selected color display in the HTML
@@ -391,6 +395,45 @@ function updateImageAndVoxels() {
   generateVoxels();
 }
 
+// Function to set up depth mode buttons and their event handlers
+function setupDepthModeButtons() {
+  const depthModes = [
+    { id: 'brightnessDepthBtn', mode: 'brightness' },
+    { id: 'redDepthBtn', mode: 'red' },
+    { id: 'greenDepthBtn', mode: 'green' },
+    { id: 'blueDepthBtn', mode: 'blue' },
+    { id: 'saturationDepthBtn', mode: 'saturation' },
+    { id: 'hueDepthBtn', mode: 'hue' }
+  ];
+  
+  depthModes.forEach(({ id, mode }) => {
+    const button = document.getElementById(id);
+    button.addEventListener('click', () => {
+      // Store current state in undo stack before modifying
+      if (voxels.length > 0) {
+        undoStack.push([...voxels]);
+        redoStack = []; // Clear redo stack
+      }
+      
+      // Update active button styling
+      document.querySelectorAll('.depthModeBtn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      button.classList.add('active');
+      
+      // Set the depth mode and regenerate voxels
+      depthMode = mode;
+      
+      // Only regenerate if image is loaded
+      if (img) {
+        generateVoxels();
+      }
+      
+      console.log(`Depth mode set to: ${mode}`);
+    });
+  });
+}
+
 // Function to generate the voxels with depth based on color
 function generateVoxels() {
   voxels = []; // Reset the voxel array
@@ -428,13 +471,50 @@ function generateVoxels() {
         c = img.get(sampleX, sampleY);
       }
 
-      // Extract the brightness (luminance) of the color using the red, green, blue channels
-      let brightnessVal = (red(c) + green(c) + blue(c)) / 3;
+      // Calculate depth value based on the selected depth mode
+      let depthValue;
+      
+      switch (depthMode) {
+        case 'red':
+          // Use only the red channel for depth
+          depthValue = red(c);
+          break;
+        
+        case 'green':
+          // Use only the green channel for depth
+          depthValue = green(c);
+          break;
+          
+        case 'blue':
+          // Use only the blue channel for depth
+          depthValue = blue(c);
+          break;
+          
+        case 'saturation':
+          // Convert to HSB and use saturation for depth
+          colorMode(HSB, 255);
+          depthValue = saturation(c);
+          colorMode(RGB, 255); // Switch back to RGB mode
+          break;
+          
+        case 'hue':
+          // Convert to HSB and use hue for depth
+          colorMode(HSB, 255);
+          depthValue = hue(c);
+          colorMode(RGB, 255); // Switch back to RGB mode
+          break;
+          
+        case 'brightness':
+        default:
+          // Default to using brightness (average of RGB)
+          depthValue = (red(c) + green(c) + blue(c)) / 3;
+          break;
+      }
 
       // Conditionally invert the depth mapping based on the invertDepth variable
       let zDepth = invertDepth
-        ? map(brightnessVal, 0, 255, -depthScale, depthScale)
-        : map(brightnessVal, 0, 255, depthScale, -depthScale);
+        ? map(depthValue, 0, 255, -depthScale, depthScale)
+        : map(depthValue, 0, 255, depthScale, -depthScale);
 
       // Position voxels based on actual grid position with natural centering
       // The voxels will be placed within the actual image dimensions without distortion
@@ -447,6 +527,7 @@ function generateVoxels() {
     }
   }
   redraw(); // Redraw the scene with the new voxels
+  updateUndoRedoButtonStates();
 }
 
 // Function to draw the voxels in 3D space

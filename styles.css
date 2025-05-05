@@ -224,3 +224,67 @@ canvas {
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
+
+/* Depth Mode Buttons Styling */
+#depthModesContainer {
+  position: relative;
+  top: 80px;
+  left: 10px;
+  z-index: 10;
+  color: white;
+  margin-bottom: 30px;
+  margin-top: 20px;
+}
+
+#depthModeButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.depthModeBtn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background: #333;
+  color: white;
+}
+
+.depthModeBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
+.depthModeBtn.active {
+  background: linear-gradient(to right, #3a7bd5, #00d2ff);
+  box-shadow: 0 0 8px rgba(58, 123, 213, 0.8);
+}
+
+#brightnessDepthBtn {
+  background: linear-gradient(to right, #333333, #ffffff);
+}
+
+#redDepthBtn {
+  background: linear-gradient(to right, #800000, #ff0000);
+}
+
+#greenDepthBtn {
+  background: linear-gradient(to right, #008000, #00ff00);
+}
+
+#blueDepthBtn {
+  background: linear-gradient(to right, #000080, #0000ff);
+}
+
+#saturationDepthBtn {
+  background: linear-gradient(to right, #cccccc, #ff00ff);
+}
+
+#hueDepthBtn {
+  background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+}
