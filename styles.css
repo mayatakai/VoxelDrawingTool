@@ -1,10 +1,55 @@
 body {
-    background: #111;
-    color: #fff;
-    text-align: center;
-    font-size: 20px;
-    font-family: sans-serif;
-  }
-  #uploadButton {
-    margin: 20px;
-  }
+  background: #111;
+  color: #fff;
+  text-align: center;
+  font-size: 20px;
+  font-family: sans-serif;
+}
+
+#uploadButton {
+  margin: 20px;
+}
+
+canvas {
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+#sliderContainer {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  color: white;
+}
+
+#resolutionSlider {
+  -webkit-appearance: none;
+  width: 200px;
+  height: 5px;
+  background: #ddd;
+  border-radius: 5px;
+  outline: none;
+}
+
+#resolutionSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  background: #666;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+#resolutionSlider::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  background: #666;
+  border-radius: 50%;
+  cursor: pointer;
+}

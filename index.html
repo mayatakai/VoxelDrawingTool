@@ -1,15 +1,22 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>3D Voxel Art from 2D Image - p5.js</title>
-  <style src="styles.css"></style>
-  <!-- Include p5.js -->
+  <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-  <script src="sketch.js"></script>
+  <script src="sketch.js" defer></script>
 </head>
 <body>
   <h1>🧱 3D Voxel Art from 2D Image</h1>
-  <!-- File upload button -->
+  
+  <!-- Upload Button -->
   <input type="file" id="uploadButton" accept="image/*">
+
+  <!-- Resolution Slider -->
+  <div id="sliderContainer">
+    <label for="resolutionSlider">Voxel Size:</label>
+    <input type="range" id="resolutionSlider" min="5" max="50" value="20" step="1">
+  </div>
 </body>
 </html>

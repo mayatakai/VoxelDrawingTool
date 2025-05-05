@@ -3,6 +3,7 @@ let cols = 64; // Number of voxels in the x-direction
 let rows = 64; // Number of voxels in the y-direction
 let voxelSize = 20; // Size of each voxel (cube)
 let voxels = []; // Array to store voxel positions and colors
+let resolutionSlider; // Slider for adjusting resolution
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);  // Ensure WebGL mode is used for 3D
@@ -19,6 +20,19 @@ function setup() {
   orbitControl(); // Enables mouse interaction for orbiting around the scene
 
   noStroke(); // Disable outline around voxels (no stroke for cubes)
+
+  // Create a resolution slider
+
+  resolutionSlider = document.getElementById('resolutionSlider');
+  resolutionSlider.addEventListener('input', () => {
+    voxelSize = parseInt(resolutionSlider.value); // Correctly access the value property
+    cols = floor(width / voxelSize);
+    rows = floor(height / voxelSize);
+    if (img) {
+      img.resize(cols * voxelSize, rows * voxelSize);
+      generateVoxels();
+    }
+  });
 
   document.getElementById('uploadButton').addEventListener('change', (event) => {
     const file = event.target.files[0];
