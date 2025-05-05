@@ -8,6 +8,8 @@ let resolutionSlider; // Slider for adjusting resolution
 let reduceSlider; // Slider for random voxel reduction percentage
 let depthSlider; // Slider for depth scaling
 let invertDepth = false; // Boolean to track depth inversion
+let selectedColor = null; // Variable to store the selected voxel color
+let selectedVoxel = null; // Variable to store the selected voxel for highlighting
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);  // Ensure WebGL mode is used for 3D
@@ -69,6 +71,50 @@ function setup() {
       generateVoxels(); // Regenerate voxels when depth inversion is toggled
     }
   });
+
+  // Add mousePressed event to select voxel color
+  canvasElement.addEventListener('click', (event) => {
+    if (!img) return; // Ensure the image is loaded
+
+    // Map mouse coordinates to canvas coordinates
+    const rect = canvasElement.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left - width / 2;
+    const mouseY = event.clientY - rect.top - height / 2;
+
+    // Map canvas coordinates to voxel grid
+    const gridX = floor((mouseX + cols * voxelSize / 2) / voxelSize);
+    const gridY = floor((mouseY + rows * voxelSize / 2) / voxelSize);
+
+    // Ensure the coordinates are within bounds
+    if (gridX >= 0 && gridX < cols && gridY >= 0 && gridY < rows) {
+      selectedColor = img.get(gridX * voxelSize, gridY * voxelSize); // Get the color from the image
+      console.log('Selected Color:', selectedColor); // Log the selected color
+      updateSelectedColorDisplay(selectedColor); // Update the HTML display
+    }
+  });
+}
+
+canvasElement.addEventListener('click', () => {
+  const voxel = getVoxelAtClick(mouseX, mouseY);
+  if (voxel) {
+    selectedColor = voxel.color;
+    console.log('Selected Voxel Color:', selectedColor);
+    selectedVoxel = voxel; // 可选：用于 draw() 中高亮
+    updateSelectedColorDisplay(selectedColor);
+  }
+});
+
+// Update the selected color display in the HTML
+function updateSelectedColorDisplay(color) {
+  const colorDisplay = document.getElementById('selectedColorDisplay');
+  if (color) {
+    const [r, g, b, a] = color;
+    colorDisplay.textContent = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
+    colorDisplay.style.color = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
+  } else {
+    colorDisplay.textContent = 'None';
+    colorDisplay.style.color = 'inherit';
+  }
 }
 
 // Function to update the image and generate voxels
@@ -79,7 +125,7 @@ function updateImageAndVoxels() {
   let targetWidth = cols * voxelSize;
   let targetHeight = targetWidth / aspectRatio;
 
-  img = originalImg.get(); // 从原图复制
+  img = originalImg.get(); // get a copy of the original image
   img.resize(floor(targetWidth), floor(targetHeight));
   cols = floor(img.width / voxelSize);
   rows = floor(img.height / voxelSize);
@@ -137,4 +183,33 @@ function draw() {
     box(voxelSize); // Create the voxel (a cube)
     pop();
   }
+
+  if (selectedVoxel &&
+    voxel.x === selectedVoxel.x &&
+    voxel.y === selectedVoxel.y &&
+    voxel.z === selectedVoxel.z) {
+  stroke(255, 255, 0);
+  strokeWeight(2);
+  } else {
+    noStroke();
+  }
+}
+
+function getVoxelAtClick(mouseX, mouseY) {
+
+  const localX = floor((mouseX + cols * voxelSize / 2) / voxelSize);
+  const localY = floor((mouseY + rows * voxelSize / 2) / voxelSize);
+
+
+  if (localX < 0 || localX >= cols || localY < 0 || localY >= rows) {
+    return null;
+  }
+
+
+  const index = localY * cols + localX;
+  if (index >= 0 && index < voxels.length) {
+    return voxels[index];
+  }
+
+  return null;
 }
