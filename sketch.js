@@ -4,6 +4,7 @@ let rows = 64; // Number of voxels in the y-direction
 let voxelSize = 20; // Size of each voxel (cube)
 let voxels = []; // Array to store voxel positions and colors
 let resolutionSlider; // Slider for adjusting resolution
+let reduceSlider; // Slider for random voxel reduction percentage
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);  // Ensure WebGL mode is used for 3D
@@ -22,7 +23,6 @@ function setup() {
   noStroke(); // Disable outline around voxels (no stroke for cubes)
 
   // Create a resolution slider
-
   resolutionSlider = document.getElementById('resolutionSlider');
   resolutionSlider.addEventListener('input', () => {
     voxelSize = parseInt(resolutionSlider.value); // Correctly access the value property
@@ -31,6 +31,14 @@ function setup() {
     if (img) {
       img.resize(cols * voxelSize, rows * voxelSize);
       generateVoxels();
+    }
+  });
+
+  // Create a random reduction slider
+  reduceSlider = document.getElementById('reduceSlider');
+  reduceSlider.addEventListener('input', () => {
+    if (img) {
+      generateVoxels(); // Regenerate voxels when slider value changes
     }
   });
 
@@ -50,8 +58,14 @@ function setup() {
 function generateVoxels() {
   voxels = []; // Reset the voxel array
 
+  let reducePercentage = parseInt(reduceSlider.value); // Get reduction percentage
+
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
+      if (random(100) < reducePercentage) {
+        continue; // Skip this voxel based on reduction percentage
+      }
+
       let c = img.get(x * voxelSize, y * voxelSize); // Get pixel color at (x, y)
 
       // Extract the brightness (luminance) of the color using the red, green, blue channels

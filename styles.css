@@ -15,11 +15,11 @@ canvas {
   margin: 0;
   padding: 0;
   width: 100vw;
-  height: 100vh;
+  height: 50vh;
 }
 
 #sliderContainer {
-  position: absolute;
+  position: relative;
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
@@ -27,29 +27,18 @@ canvas {
   color: white;
 }
 
-#resolutionSlider {
-  -webkit-appearance: none;
-  width: 200px;
-  height: 5px;
-  background: #ddd;
-  border-radius: 5px;
-  outline: none;
+#reduceSliderContainer {
+  position: relative;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  color: white;
 }
 
-#resolutionSlider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 15px;
-  height: 15px;
-  background: #666;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-#resolutionSlider::-moz-range-thumb {
-  width: 15px;
-  height: 15px;
-  background: #666;
-  border-radius: 50%;
-  cursor: pointer;
+#uploadContainer {
+  position: relative;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
 }
