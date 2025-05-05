@@ -1,130 +1,194 @@
+/* Base styles for the document */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   background: #111;
   color: #fff;
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+h1 {
   text-align: center;
-  font-size: 20px;
-  font-family: sans-serif;
+  margin: 15px 0;
+  font-size: 24px;
+}
+
+/* Main layout container */
+.container {
+  display: flex;
+  flex: 1;
+  min-height: calc(100vh - 60px);
+}
+
+/* Left control panel */
+.control-panel {
+  width: 320px;
+  background: rgba(50, 50, 50, 0.8);
+  padding: 20px;
+  border-radius: 8px;
+  margin: 0 10px 10px 10px;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 10px;
+}
+
+/* Canvas styling */
+canvas {
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Control section styles */
+.control-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.control-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ddd;
+  margin-bottom: 12px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Label styling */
+label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #ccc;
+}
+
+/* Slider styling */
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  appearance: none;
+  background: rgba(80, 80, 80, 0.8);
+  outline: none;
+  border-radius: 3px;
+  margin: 8px 0 16px 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #2196F3;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: #03A9F4;
+  box-shadow: 0 0 8px rgba(33, 150, 243, 0.8);
+}
+
+/* Button styling */
+button {
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 5px 0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  font-weight: 500;
+}
+
+button:hover {
+  background: #555;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Upload button styling */
+#uploadContainer {
+  margin-bottom: 15px;
 }
 
 #uploadButton {
-  margin: 20px;
-}
-
-canvas {
-  display: block;
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 50vh;
-}
-
-#sliderContainer {
-  position: relative;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+  width: 100%;
+  padding: 10px;
+  background: #444;
   color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-#reduceSliderContainer {
-  position: relative;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  color: white;
+#uploadButton:hover {
+  background: #555;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
 }
 
-#depthSliderContainer{
-  position: relative;
-  top: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  color: white;
-}
-
-#uploadContainer {
-  position: relative;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
-}
-
-#invertDepthContainer {
-  position: relative;
-  top: 50px;
-  left: 10px;
-  z-index: 10;
-}
-
-#recalculateDepthsContainer {
-  position: relative;
-  top: 50px;
-  left: 10px;
-  z-index: 10;
-  margin-top: 10px;
+/* Special button styles */
+#invertDepthButton {
+  background: linear-gradient(to right, #4b6cb7, #182848);
 }
 
 #recalculateDepthsButton {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
   background: linear-gradient(to right, #3a7bd5, #00d2ff);
-  color: white;
-}
-
-#recalculateDepthsButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
-}
-
-#revertToOriginalContainer {
-  position: relative;
-  top: 50px;
-  left: 10px;
-  z-index: 10;
-  margin-top: 10px;
 }
 
 #revertToOriginalButton {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
   background: linear-gradient(to right, #ff9966, #ff5e62);
-  color: white;
 }
 
-#revertToOriginalButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+#removeBackgroundButton {
+  background: linear-gradient(to right, #8360c3, #2ebf91);
 }
 
+/* Undo/Redo buttons */
 #undoRedoContainer {
-  position: relative;
-  top: 50px;
-  left: 10px;
-  z-index: 10;
-  margin-top: 10px;
   display: flex;
   gap: 10px;
+  margin-top: 10px;
 }
 
-#undoButton, #redoButton {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  color: white;
+#undoRedoContainer button {
+  flex: 1;
+  padding: 8px;
 }
 
 #undoButton {
@@ -135,11 +199,6 @@ canvas {
   background: linear-gradient(to right, #1f4037, #99f2c8);
 }
 
-#undoButton:hover, #redoButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
-}
-
 #undoButton:disabled, #redoButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -147,145 +206,99 @@ canvas {
   box-shadow: none;
 }
 
-#selectedColorContainer{
-  position: relative;
-  top: 50px;
-  left: 10px;
-  z-index: 10;
+/* Color selection display */
+#selectedColorContainer {
+  background: rgba(30, 30, 30, 0.5);
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  text-align: center;
 }
 
-#colorThresholdSliderContainer{
-  position: relative;
-  top: 50px;
-  left: 10px;
-  z-index: 10;
+#selectedColorDisplay {
+  font-weight: bold;
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
-#colorPalettesContainer {
-  position: relative;
-  top: 70px;
-  left: 10px;
-  z-index: 10;
-  color: white;
-  margin-bottom: 20px;
-}
-
+/* Color palette styles */
 #paletteButtons {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px;
-  margin-top: 10px;
-  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .paletteBtn {
-  padding: 0;
-  width: 40px;
+  width: calc(25% - 6px);
   height: 40px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  margin: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  padding: 0;
+  margin: 0;
+  border-radius: 4px;
+}
+
+/* Named palette buttons styling */
+#pastelPaletteBtn, 
+#neonPaletteBtn, 
+#earthPaletteBtn, 
+#oceanPaletteBtn {
+  width: calc(50% - 4px);
+  height: auto;
+  padding: 8px 0;
+  margin-top: 8px;
 }
 
 #pastelPaletteBtn {
   background: linear-gradient(to right, #fddde6, #d7c0f6, #c5f4f0, #ffe6c9);
   color: #333;
-  width: auto;
-  padding: 8px 16px;
 }
 
 #neonPaletteBtn {
   background: linear-gradient(to right, #ff00ff, #00ffff, #00ff00, #ffff00);
   color: #000;
-  width: auto;
-  padding: 8px 16px;
 }
 
 #earthPaletteBtn {
   background: linear-gradient(to right, #8B4513, #556B2F, #A0522D, #CD853F);
-  color: white;
-  width: auto;
-  padding: 8px 16px;
 }
 
 #oceanPaletteBtn {
   background: linear-gradient(to right, #00008B, #0000CD, #4169E1, #87CEEB);
-  color: white;
-  width: auto;
-  padding: 8px 16px;
 }
 
-.paletteBtn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
-}
-
-/* Depth Mode Buttons Styling */
-#depthModesContainer {
-  position: relative;
-  top: 80px;
-  left: 10px;
-  z-index: 10;
-  color: white;
-  margin-bottom: 30px;
-  margin-top: 20px;
-}
-
-
+/* Depth mode buttons */
 #depthModeButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .depthModeBtn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  background: #333;
-  color: white;
-}
-
-.depthModeBtn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+  padding: 8px 5px;
+  text-align: center;
 }
 
 .depthModeBtn.active {
-  background: linear-gradient(to right, #3a7bd5, #00d2ff);
-  box-shadow: 0 0 8px rgba(58, 123, 213, 0.8);
+  background: #2196F3;
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
 }
 
-#brightnessDepthBtn {
-  background: linear-gradient(to right, #333333, #ffffff);
-}
-
-#redDepthBtn {
-  background: linear-gradient(to right, #800000, #ff0000);
-}
-
-#greenDepthBtn {
-  background: linear-gradient(to right, #008000, #00ff00);
-}
-
-#blueDepthBtn {
-  background: linear-gradient(to right, #000080, #0000ff);
-}
-
-#saturationDepthBtn {
-  background: linear-gradient(to right, #cccccc, #ff00ff);
-}
-
-#hueDepthBtn {
-  background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+/* Responsive design */
+@media screen and (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  
+  .control-panel {
+    width: auto;
+    max-height: 40vh;
+    margin: 0 10px;
+  }
+  
+  #depthModeButtons {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

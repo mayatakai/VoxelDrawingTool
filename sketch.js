@@ -150,7 +150,15 @@ function generatePaletteButtons() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight, WEBGL);  // Ensure WebGL mode is used for 3D
+  // Get the main-content container dimensions for responsive canvas
+  const mainContent = document.querySelector('.main-content');
+  const canvasWidth = mainContent.clientWidth;
+  const canvasHeight = mainContent.clientHeight;
+  
+  // Create canvas inside the main-content container
+  const canvas = createCanvas(canvasWidth, canvasHeight, WEBGL);
+  canvas.parent(mainContent);
+  
   noLoop(); // No need to continuously redraw
   
   // Set the canvas to optimize readback performance
@@ -314,6 +322,20 @@ function setup() {
 
   // Set up depth mode buttons
   setupDepthModeButtons();
+}
+
+// Handle window resizing to maintain responsive layout
+function windowResized() {
+  // Get the new main-content container dimensions
+  const mainContent = document.querySelector('.main-content');
+  const canvasWidth = mainContent.clientWidth;
+  const canvasHeight = mainContent.clientHeight;
+  
+  // Resize the canvas to fit the container
+  resizeCanvas(canvasWidth, canvasHeight);
+  
+  // Redraw the scene with proper dimensions
+  redraw();
 }
 
 // Update the selected color display in the HTML

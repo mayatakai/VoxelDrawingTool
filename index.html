@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3D Voxel Art from 2D Image - p5.js</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
@@ -10,89 +11,92 @@
 <body>
   <h1>🧱 3D Voxel Art from 2D Image</h1>
   
-  <!-- Upload Button -->
-  <div id="uploadContainer">
-  <input type="file" id="uploadButton" accept="image/*">
-  </div>
+  <div class="container">
+    <!-- Left Control Panel -->
+    <div class="control-panel">
+      <!-- File Control Section -->
+      <div class="control-section">
+        <h3 class="section-title">File Controls</h3>
+        <div id="uploadContainer">
+          <input type="file" id="uploadButton" accept="image/*">
+        </div>
+        <button id="revertToOriginalButton">Revert to Original Image</button>
+      </div>
 
-  <!-- Resolution Slider -->
-  <div id="sliderContainer">
-    <label for="resolutionSlider">Voxel Size:</label>
-    <input type="range" id="resolutionSlider" min="5" max="50" value="20" step="5">
-  </div>
+      <!-- Voxel Settings Section -->
+      <div class="control-section">
+        <h3 class="section-title">Voxel Settings</h3>
+        <div id="sliderContainer">
+          <label for="resolutionSlider">Voxel Size:</label>
+          <input type="range" id="resolutionSlider" min="5" max="50" value="20" step="5">
+        </div>
 
-  <!-- Random reduce Button -->
-  <div id="reduceSliderContainer">
-    <label for="reduceSlider">Voxel Random Reduce %:</label>
-    <input type="range" id="reduceSlider" min="0" max="100" value="0" step="10">
-  </div>
-  
-  <!-- Depth Scale Slider -->
-  <div id="depthSliderContainer">
-    <label for="depthSlider">Voxel Depth Scale:</label>
-    <input type="range" id="depthSlider" min="50" max="500" value="100" step="10">
-  </div>
+        <div id="reduceSliderContainer">
+          <label for="reduceSlider">Random Reduce %:</label>
+          <input type="range" id="reduceSlider" min="0" max="100" value="0" step="10">
+        </div>
+        
+        <div id="depthSliderContainer">
+          <label for="depthSlider">Depth Scale:</label>
+          <input type="range" id="depthSlider" min="50" max="500" value="100" step="10">
+        </div>
+      </div>
+      
+      <!-- Edit Tools Section -->
+      <div class="control-section">
+        <h3 class="section-title">Edit Tools</h3>
+        <button id="invertDepthButton">Invert Depth</button>
+        <button id="recalculateDepthsButton">Recalculate Depths</button>
+        <button id="removeBackgroundButton">Remove Background</button>
+        
+        <div id="undoRedoContainer">
+          <button id="undoButton" title="Undo (Ctrl+Z)">↩️ Undo</button>
+          <button id="redoButton" title="Redo (Ctrl+Y)">↪️ Redo</button>
+        </div>
+      </div>
+      
+      <!-- Color Selection Section -->
+      <div class="control-section">
+        <h3 class="section-title">Color Selection</h3>
+        <div id="colorThresholdSliderContainer">
+          <label for="colorThresholdSlider">Color Similarity:</label>
+          <input type="range" id="colorThresholdSlider" min="10" max="150" value="50" step="1">
+        </div>
 
-  <!-- Invert Depth Button -->
-  <div id="invertDepthContainer">
-    <button id="invertDepthButton">Invert Depth</button>
-  </div>
-  
-  <!-- Recalculate Depths Button -->
-  <div id="recalculateDepthsContainer">
-    <button id="recalculateDepthsButton">Recalculate Depths From Current Colors</button>
-  </div>
+        <div id="selectedColorContainer">
+          <p>Selected Color: <span id="selectedColorDisplay">None</span></p>
+        </div>
+      </div>
 
-  <!-- Revert to Original Button -->
-  <div id="revertToOriginalContainer">
-    <button id="revertToOriginalButton">Revert to Original Image</button>
-  </div>
-
-  <!-- Remove Background Button -->
-  <div id="removeBackgroundContainer">
-    <button id="removeBackgroundButton">Remove Background</button>
-  </div>
-
-  <!-- Undo/Redo Buttons -->
-  <div id="undoRedoContainer">
-    <button id="undoButton" title="Undo (Ctrl+Z)">↩️ Undo</button>
-    <button id="redoButton" title="Redo (Ctrl+Y)">↪️ Redo</button>
-  </div>
-
-  <!-- Color Threshold Slider -->
-  <div id="colorThresholdSliderContainer">
-    <label for="colorThresholdSlider">Color Similarity Threshold:</label>
-    <input type="range" id="colorThresholdSlider" min="10" max="150" value="50" step="1">
-  </div>
-
-  <!-- Selected Color Display -->
-  <div id="selectedColorContainer">
-    <p>Selected Color: <span id="selectedColorDisplay">None</span></p>
-  </div>
-
-  <!-- Color Palettes -->
-  <div id="colorPalettesContainer">
-    <h3>Color Palettes</h3>
-    <div id="paletteButtons">
-      <button id="pastelPaletteBtn" class="paletteBtn">Pastel</button>
-      <button id="neonPaletteBtn" class="paletteBtn">Neon</button>
-      <button id="earthPaletteBtn" class="paletteBtn">Earth</button>
-      <button id="oceanPaletteBtn" class="paletteBtn">Ocean</button>
+      <!-- Color Palettes Section -->
+      <div class="control-section">
+        <h3 class="section-title">Color Palettes</h3>
+        <div id="paletteButtons">
+          <button id="pastelPaletteBtn" class="paletteBtn">Pastel</button>
+          <button id="neonPaletteBtn" class="paletteBtn">Neon</button>
+          <button id="earthPaletteBtn" class="paletteBtn">Earth</button>
+          <button id="oceanPaletteBtn" class="paletteBtn">Ocean</button>
+        </div>
+      </div>
+      
+      <!-- Depth Calculation Modes -->
+      <div class="control-section">
+        <h3 class="section-title">Depth Mode</h3>
+        <div id="depthModeButtons">
+          <button id="brightnessDepthBtn" class="depthModeBtn active">Brightness</button>
+          <button id="redDepthBtn" class="depthModeBtn">Red</button>
+          <button id="greenDepthBtn" class="depthModeBtn">Green</button>
+          <button id="blueDepthBtn" class="depthModeBtn">Blue</button>
+          <button id="saturationDepthBtn" class="depthModeBtn">Saturation</button>
+          <button id="hueDepthBtn" class="depthModeBtn">Hue</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content Area (p5.js will create the canvas here) -->
+    <div class="main-content">
+      <!-- Canvas will be created here by p5.js -->
     </div>
   </div>
-  
-  <!-- Depth Calculation Modes -->
-  <div id="depthModesContainer">
-    <h3>Depth Calculation Modes</h3>
-    <div id="depthModeButtons">
-      <button id="brightnessDepthBtn" class="depthModeBtn active">Brightness</button>
-      <button id="redDepthBtn" class="depthModeBtn">Red Channel</button>
-      <button id="greenDepthBtn" class="depthModeBtn">Green Channel</button>
-      <button id="blueDepthBtn" class="depthModeBtn">Blue Channel</button>
-      <button id="saturationDepthBtn" class="depthModeBtn">Saturation</button>
-      <button id="hueDepthBtn" class="depthModeBtn">Hue</button>
-    </div>
-  </div>
-
 </body>
 </html>
