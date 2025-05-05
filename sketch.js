@@ -10,21 +10,19 @@ let depthSlider; // Slider for depth scaling
 let invertDepth = false; // Boolean to track depth inversion
 let selectedColor = null; // Variable to store the selected voxel color
 let selectedVoxel = null; // Variable to store the selected voxel for highlighting
+let canvasElement; // Reference to the canvas element
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);  // Ensure WebGL mode is used for 3D
   noLoop(); // No need to continuously redraw
-
-  // Set a fixed camera position
-  camera(1000, -500, 1000, 0, 0, 0, 0, 1, 0);
-
+  
   // Set the canvas to optimize readback performance
-  const canvasElement = document.querySelector('canvas');
+  canvasElement = document.querySelector('canvas');
   canvasElement.willReadFrequently = true;
+  
 
   // Allow mouse interaction to rotate the camera view
   orbitControl(); // Enables mouse interaction for orbiting around the scene
-
   noStroke(); // Disable outline around voxels (no stroke for cubes)
 
   // Create a resolution slider
@@ -81,28 +79,16 @@ function setup() {
     const mouseX = event.clientX - rect.left - width / 2;
     const mouseY = event.clientY - rect.top - height / 2;
 
-    // Map canvas coordinates to voxel grid
-    const gridX = floor((mouseX + cols * voxelSize / 2) / voxelSize);
-    const gridY = floor((mouseY + rows * voxelSize / 2) / voxelSize);
-
-    // Ensure the coordinates are within bounds
-    if (gridX >= 0 && gridX < cols && gridY >= 0 && gridY < rows) {
-      selectedColor = img.get(gridX * voxelSize, gridY * voxelSize); // Get the color from the image
-      console.log('Selected Color:', selectedColor); // Log the selected color
-      updateSelectedColorDisplay(selectedColor); // Update the HTML display
+    const voxel = getVoxelAtClick(mouseX, mouseY);
+    if (voxel) {
+      selectedColor = voxel.color;
+      selectedVoxel = voxel;
+      console.log('Selected Voxel Color:', selectedColor);
+      updateSelectedColorDisplay(selectedColor);
+      redraw(); // Redraw the scene to reflect the selected voxel
     }
   });
 }
-
-canvasElement.addEventListener('click', () => {
-  const voxel = getVoxelAtClick(mouseX, mouseY);
-  if (voxel) {
-    selectedColor = voxel.color;
-    console.log('Selected Voxel Color:', selectedColor);
-    selectedVoxel = voxel; // 可选：用于 draw() 中高亮
-    updateSelectedColorDisplay(selectedColor);
-  }
-});
 
 // Update the selected color display in the HTML
 function updateSelectedColorDisplay(color) {
@@ -179,20 +165,23 @@ function draw() {
 
     push();
     translate(voxel.x, voxel.y, voxel.z); // Position the voxel in 3D space
+    
+    if (selectedVoxel &&
+      voxel.x === selectedVoxel.x &&
+      voxel.y === selectedVoxel.y &&
+      voxel.z === selectedVoxel.z) {
+    stroke(255, 255, 0);
+    strokeWeight(2);
+    } else {
+      noStroke();
+    }
+
     fill(voxel.color); // Set the voxel color based on pixel color
     box(voxelSize); // Create the voxel (a cube)
     pop();
   }
 
-  if (selectedVoxel &&
-    voxel.x === selectedVoxel.x &&
-    voxel.y === selectedVoxel.y &&
-    voxel.z === selectedVoxel.z) {
-  stroke(255, 255, 0);
-  strokeWeight(2);
-  } else {
-    noStroke();
-  }
+  
 }
 
 function getVoxelAtClick(mouseX, mouseY) {
