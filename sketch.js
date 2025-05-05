@@ -1,10 +1,12 @@
 let img;
+let originalImg; // Store the original image for resizingi  
 let cols = 64; // Number of voxels in the x-direction
 let rows = 64; // Number of voxels in the y-direction
 let voxelSize = 20; // Size of each voxel (cube)
 let voxels = []; // Array to store voxel positions and colors
 let resolutionSlider; // Slider for adjusting resolution
 let reduceSlider; // Slider for random voxel reduction percentage
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);  // Ensure WebGL mode is used for 3D
@@ -28,10 +30,8 @@ function setup() {
     voxelSize = parseInt(resolutionSlider.value); // Correctly access the value property
     cols = floor(width / voxelSize);
     rows = floor(height / voxelSize);
-    if (img) {
-      img.resize(cols * voxelSize, rows * voxelSize);
-      generateVoxels();
-    }
+    updateImageAndVoxels(); // Call the function to update the image and generate voxels
+    
   });
 
   // Create a random reduction slider
@@ -46,13 +46,30 @@ function setup() {
     const file = event.target.files[0];
     if (file) {
       loadImage(URL.createObjectURL(file), (loadedImage) => {
-        img = loadedImage;
-        img.resize(cols * voxelSize, rows * voxelSize); // Resize the image to fit the voxel grid
-        generateVoxels(); // Generate 3D voxels based on the image
+        originalImg = loadedImage.get(); // save the original image
+        updateImageAndVoxels(); // Call the function to update the image and generate voxels
       });
     }
   });
+  
 }
+
+// Function to update the image and generate voxels
+function updateImageAndVoxels() {
+  if (!originalImg) return;
+
+  let aspectRatio = originalImg.width / originalImg.height;
+  let targetWidth = cols * voxelSize;
+  let targetHeight = targetWidth / aspectRatio;
+
+  img = originalImg.get(); // 从原图复制
+  img.resize(floor(targetWidth), floor(targetHeight));
+  cols = floor(img.width / voxelSize);
+  rows = floor(img.height / voxelSize);
+
+  generateVoxels();
+}
+
 
 // Function to generate the voxels with depth based on color
 function generateVoxels() {
