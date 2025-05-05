@@ -68,6 +68,86 @@ function applyColorPalette(palette) {
   redraw(); // Update the canvas display
 }
 
+// Color themes for the palette buttons
+const colorThemes = [
+  ['#f5f5f5'], ['#dcdce6'], ['#b5b5c0'], ['#888893'], ['#4f4f54'],
+  ['#d5c9f5'], ['#d6bcf4'], ['#fbc8ea'], ['#fda6d2'], ['#fc85ce'],
+  ['#365cf0', '#365cf0', '#365cf0', '#365cf0'],
+  ['#ff2cd4', '#ff2cd4', '#ff2cd4', '#ff2cd4'],
+  ['#ff8e6c', '#ffc898', '#ffd899', '#f6ffc6'],
+  ['#ffe688', '#e6fcb2', '#b6f6d2', '#a8f2e8'],
+  ['#ffc8ec', '#b8ebfc', '#c0fccc', '#e9fcb9'],
+  ['#b9ff69', '#97fcb6', '#a0fcee', '#a2bbf9'],
+  ['#71f6f6', '#5bd1f3', '#8ce7c9', '#c4fdcd'],
+  ['#b0fdd9', '#c3f7b7', '#eafcb8', '#fdd6fa'],
+  ['#dbc8fd', '#c8cbfd', '#d3d4ff', '#ebc7fb'],
+  ['#c3f6b0', '#c7f2d6', '#d9f8e6', '#d6f0fc']
+];
+
+// Function to generate color palette buttons
+function generatePaletteButtons() {
+  const paletteButtonsContainer = document.getElementById('paletteButtons');
+  
+  // Clear existing buttons
+  paletteButtonsContainer.innerHTML = '';
+
+  // Generate buttons for each theme
+  colorThemes.forEach((palette, index) => {
+    // Create button element
+    const button = document.createElement('button');
+    button.className = 'paletteBtn';
+    button.id = `palette-${index}`;
+    
+    // Set the button style based on the palette
+    if (palette.length === 1) {
+      // Single color
+      button.style.background = palette[0];
+      
+      // Set text color based on background brightness for readability
+      const hexColor = palette[0].slice(1); // Remove the # character
+      const r = parseInt(hexColor.slice(0, 2), 16);
+      const g = parseInt(hexColor.slice(2, 4), 16);
+      const b = parseInt(hexColor.slice(4, 6), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      button.style.color = brightness > 128 ? '#000' : '#fff';
+    } else {
+      // Create gradient for multi-color palettes
+      const gradientStops = palette.map((color, i) => 
+        `${color} ${i * (100 / (palette.length - 1))}%`
+      ).join(', ');
+      button.style.background = `linear-gradient(to right, ${gradientStops})`;
+      button.style.color = '#fff';
+    }
+    
+    // Add click event
+    button.addEventListener('click', () => {
+      applyColorPalette(palette);
+    });
+    
+    // Append button to container
+    paletteButtonsContainer.appendChild(button);
+  });
+  
+  // Add the default palette buttons back
+  const defaultPalettes = [
+    { id: 'pastelPaletteBtn', name: 'Pastel', palette: pastelPalette },
+    { id: 'neonPaletteBtn', name: 'Neon', palette: neonPalette },
+    { id: 'earthPaletteBtn', name: 'Earth', palette: earthPalette },
+    { id: 'oceanPaletteBtn', name: 'Ocean', palette: oceanPalette }
+  ];
+  
+  defaultPalettes.forEach(({ id, name, palette }) => {
+    const button = document.createElement('button');
+    button.id = id;
+    button.className = 'paletteBtn';
+    button.textContent = name;
+    button.addEventListener('click', () => {
+      applyColorPalette(palette);
+    });
+    paletteButtonsContainer.appendChild(button);
+  });
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);  // Ensure WebGL mode is used for 3D
   noLoop(); // No need to continuously redraw
@@ -222,6 +302,9 @@ function setup() {
   
   // Update button states initially
   updateUndoRedoButtonStates();
+
+  // Generate palette buttons
+  generatePaletteButtons();
 }
 
 // Update the selected color display in the HTML

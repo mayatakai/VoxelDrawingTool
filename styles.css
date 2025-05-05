@@ -174,35 +174,50 @@ canvas {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  padding: 10px;
+  margin-top: 10px;
+  justify-content: center;
 }
 
 .paletteBtn {
-  padding: 8px 16px;
+  padding: 0;
+  width: 40px;
+  height: 40px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
+  margin: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 #pastelPaletteBtn {
   background: linear-gradient(to right, #fddde6, #d7c0f6, #c5f4f0, #ffe6c9);
   color: #333;
+  width: auto;
+  padding: 8px 16px;
 }
 
 #neonPaletteBtn {
   background: linear-gradient(to right, #ff00ff, #00ffff, #00ff00, #ffff00);
   color: #000;
+  width: auto;
+  padding: 8px 16px;
 }
 
 #earthPaletteBtn {
   background: linear-gradient(to right, #8B4513, #556B2F, #A0522D, #CD853F);
   color: white;
+  width: auto;
+  padding: 8px 16px;
 }
 
 #oceanPaletteBtn {
   background: linear-gradient(to right, #00008B, #0000CD, #4169E1, #87CEEB);
   color: white;
+  width: auto;
+  padding: 8px 16px;
 }
 
 .paletteBtn:hover {
