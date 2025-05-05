@@ -291,6 +291,11 @@ function setup() {
   document.getElementById('revertToOriginalButton').addEventListener('click', () => {
     revertToOriginalImage();
   });
+  
+  // Add event listener for remove background button
+  document.getElementById('removeBackgroundButton').addEventListener('click', () => {
+    removeBackground();
+  });
 
   // Add event listeners for undo and redo buttons
   document.getElementById('undoButton').addEventListener('click', () => {
@@ -742,4 +747,98 @@ function revertToOriginalImage() {
     updateImageAndVoxels(); // Update the image and regenerate voxels
     console.log('Reverted to original image');
   }
+}
+
+// Function to identify and remove the most common colored voxels (background)
+function removeBackground() {
+  // Check if there are voxels to process
+  if (voxels.length === 0) {
+    console.log('No voxels to process');
+    return;
+  }
+
+  // Store current state in undo stack before modifying
+  undoStack.push([...voxels]);
+  redoStack = []; // Clear redo stack
+
+  // Create a map to count voxel colors
+  const colorCounts = {};
+  
+  // Count occurrences of each color (using r,g,b as key)
+  for (const voxel of voxels) {
+    const r = Math.round(red(voxel.color));
+    const g = Math.round(green(voxel.color));
+    const b = Math.round(blue(voxel.color));
+    
+    // Create a simplified key for the color
+    const colorKey = `${r},${g},${b}`;
+    
+    // Increment counter for this color
+    if (colorCounts[colorKey]) {
+      colorCounts[colorKey].count++;
+    } else {
+      colorCounts[colorKey] = {
+        count: 1,
+        color: voxel.color,
+        r: r,
+        g: g, 
+        b: b
+      };
+    }
+  }
+  
+  // Find the color with the highest count
+  let mostCommonColorKey = null;
+  let highestCount = 0;
+  
+  for (const colorKey in colorCounts) {
+    if (colorCounts[colorKey].count > highestCount) {
+      highestCount = colorCounts[colorKey].count;
+      mostCommonColorKey = colorKey;
+    }
+  }
+  
+  if (!mostCommonColorKey) {
+    console.log('No common color found');
+    return;
+  }
+  
+  // Get the most common color details
+  const mostCommonColor = colorCounts[mostCommonColorKey];
+  console.log(`Most common color: RGB(${mostCommonColor.r}, ${mostCommonColor.g}, ${mostCommonColor.b}) - ${mostCommonColor.count} voxels`);
+  
+  // Get the current color threshold value
+  const colorThreshold = parseInt(colorThresholdSlider.value);
+  
+  // Filter out voxels with the most common color (or within threshold)
+  const filteredVoxels = voxels.filter(voxel => {
+    // Calculate color distance to the most common color
+    const distance = calculateColorDistance(voxel.color, mostCommonColor.color);
+    // Keep voxel if the distance is greater than the threshold
+    return distance > colorThreshold;
+  });
+  
+  // Update editedVoxelsMap to mark removed voxels as deleted
+  const removedCount = voxels.length - filteredVoxels.length;
+  for (const voxel of voxels) {
+    // Calculate color distance to the most common color
+    const distance = calculateColorDistance(voxel.color, mostCommonColor.color);
+    
+    if (distance <= colorThreshold) {
+      // This voxel will be removed, so mark it as deleted in the map
+      const gridX = floor((voxel.x + cols * voxelSize / 2) / voxelSize);
+      const gridY = floor((voxel.y + rows * voxelSize / 2) / voxelSize);
+      const key = `${gridX},${gridY}`;
+      editedVoxelsMap[key] = 'deleted';
+    }
+  }
+  
+  // Update voxels array
+  voxels = filteredVoxels;
+  
+  console.log(`Removed ${removedCount} background voxels`);
+  
+  // Update the canvas
+  redraw();
+  updateUndoRedoButtonStates();
 }
