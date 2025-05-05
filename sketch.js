@@ -16,6 +16,7 @@ let selectedVoxel = null; // Variable to store the selected voxel for highlighti
 let selectedVoxels = []; // Array to store voxels with similar colors
 let canvasElement; // Reference to the canvas element
 let undoStack = []; // Stack to store previous states for undo functionality
+let redoStack = []; // Stack to store future states for redo functionality
 
 // Color palettes
 const pastelPalette = ['#fddde6', '#d7c0f6', '#c5f4f0', '#ffe6c9', '#ffd1dc'];
@@ -27,6 +28,7 @@ const oceanPalette = ['#00008B', '#0000CD', '#4169E1', '#87CEEB', '#ADD8E6'];
 function applyColorPalette(palette) {
   // Store current state in undo stack before modifying
   undoStack.push([...voxels]);
+  redoStack = []; // Clear redo stack
 
   // Determine which voxels to modify
   const voxelsToModify = selectedVoxels.length > 0 ? selectedVoxels : voxels;
@@ -85,6 +87,7 @@ function setup() {
     voxelSize = parseInt(resolutionSlider.value); // Correctly access the value property
     cols = floor(width / voxelSize);
     rows = floor(height / voxelSize);
+    window.lastUpdateSource = 'resolutionSlider'; // Track the source of the update
     updateImageAndVoxels(); // Call the function to update the image and generate voxels
     
   });
@@ -93,7 +96,12 @@ function setup() {
   reduceSlider = document.getElementById('reduceSlider');
   reduceSlider.addEventListener('input', () => {
     if (img) {
+      // Store current state in undo stack before modifying
+      undoStack.push([...voxels]);
+      redoStack = []; // Clear redo stack
+      
       generateVoxels(); // Regenerate voxels when slider value changes
+      updateUndoRedoButtonStates(); // Update button states
     }
   });
 
@@ -101,7 +109,12 @@ function setup() {
   depthSlider = document.getElementById('depthSlider');
   depthSlider.addEventListener('input', () => {
     if (img) {
+      // Store current state in undo stack before modifying
+      undoStack.push([...voxels]);
+      redoStack = []; // Clear redo stack
+      
       generateVoxels(); // Regenerate voxels when slider value changes
+      updateUndoRedoButtonStates(); // Update button states
     }
   });
 
@@ -147,6 +160,7 @@ function setup() {
 
     const clickedVoxel = getVoxelAtClick(mouseX, mouseY);
     if (clickedVoxel) {
+      // Voxel was clicked - select it and similar voxels
       selectedColor = clickedVoxel.color;
       console.log('Selected Color:', selectedColor);
 
@@ -158,8 +172,16 @@ function setup() {
 
       console.log(`Found ${selectedVoxels.length} similar colored voxels`);
       updateSelectedColorDisplay(selectedColor);
-      redraw(); // Redraw the scene to reflect the selected voxels
+    } else {
+      // No voxel was clicked - clear the selection
+      selectedColor = null;
+      selectedVoxels = [];
+      console.log('Selection cleared - clicked on empty area');
+      updateSelectedColorDisplay(null);
     }
+    
+    // Redraw the scene to reflect changes in selection state
+    redraw();
   });
 
   // Add event listeners for palette buttons
@@ -178,6 +200,28 @@ function setup() {
   document.getElementById('oceanPaletteBtn').addEventListener('click', () => {
     applyColorPalette(oceanPalette);
   });
+
+  // Add event listener for recalculate depths button
+  document.getElementById('recalculateDepthsButton').addEventListener('click', () => {
+    recalculateDepthsFromCurrentColors();
+  });
+
+  // Add event listener for revert to original button
+  document.getElementById('revertToOriginalButton').addEventListener('click', () => {
+    revertToOriginalImage();
+  });
+
+  // Add event listeners for undo and redo buttons
+  document.getElementById('undoButton').addEventListener('click', () => {
+    performUndo();
+  });
+  
+  document.getElementById('redoButton').addEventListener('click', () => {
+    performRedo();
+  });
+  
+  // Update button states initially
+  updateUndoRedoButtonStates();
 }
 
 // Update the selected color display in the HTML
@@ -202,24 +246,64 @@ function updateSelectedColorDisplay(color) {
 function updateImageAndVoxels() {
   if (!originalImg) return;
 
-  // Reset color-related data structures for the new image
-  colorMap = {};
-  editedVoxelsMap = {};
-  selectedColor = null;
-  selectedVoxels = [];
-  undoStack = [];
+  // Track where this function was called from
+  const isFromResolutionChange = window.lastUpdateSource === 'resolutionSlider';
+  window.lastUpdateSource = null; // Reset the source tracker
   
-  // Update the selected color display
-  updateSelectedColorDisplay(null);
+  // Always reset data structures for new image upload
+  if (!isFromResolutionChange) {
+    colorMap = {};
+    editedVoxelsMap = {};
+    selectedColor = null;
+    selectedVoxels = [];
+    undoStack = [];
+    redoStack = [];
+    
+    // Update the selected color display
+    updateSelectedColorDisplay(null);
+  }
 
+  // Calculate maximum dimensions that will fit in the canvas with some padding
+  const maxWidth = width * 0.8;
+  const maxHeight = height * 0.8;
+  
+  // Calculate scaled dimensions that maintain aspect ratio
   let aspectRatio = originalImg.width / originalImg.height;
-  let targetWidth = cols * voxelSize;
-  let targetHeight = targetWidth / aspectRatio;
-
-  img = originalImg.get(); // get a copy of the original image
+  let targetWidth, targetHeight;
+  
+  if (aspectRatio > 1) {
+    // Image is wider than tall
+    targetWidth = min(maxWidth, originalImg.width);
+    targetHeight = targetWidth / aspectRatio;
+    
+    // If height is too large, scale down further
+    if (targetHeight > maxHeight) {
+      targetHeight = maxHeight;
+      targetWidth = targetHeight * aspectRatio;
+    }
+  } else {
+    // Image is taller than wide or square
+    targetHeight = min(maxHeight, originalImg.height);
+    targetWidth = targetHeight * aspectRatio;
+    
+    // If width is too large, scale down further
+    if (targetWidth > maxWidth) {
+      targetWidth = maxWidth;
+      targetHeight = targetWidth / aspectRatio;
+    }
+  }
+  
+  // Create a copy of the original image and resize it
+  img = originalImg.get();
   img.resize(floor(targetWidth), floor(targetHeight));
+  
+  // Determine voxel grid dimensions based on the resized image and voxel size
   cols = floor(img.width / voxelSize);
   rows = floor(img.height / voxelSize);
+  
+  // Ensure we have at least one row and column
+  cols = max(1, cols);
+  rows = max(1, rows);
 
   generateVoxels();
 }
@@ -230,6 +314,10 @@ function generateVoxels() {
 
   let reducePercentage = parseInt(reduceSlider.value); // Get reduction percentage
   let depthScale = parseInt(depthSlider.value); // Get depth scaling value
+
+  // Calculate offsets to center the image in the canvas
+  const xOffset = (width - img.width) / 2;
+  const yOffset = (height - img.height) / 2;
 
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
@@ -251,7 +339,10 @@ function generateVoxels() {
         c = colorMap[key];
       } else {
         // Otherwise use the color from the image
-        c = img.get(x * voxelSize, y * voxelSize);
+        // Ensure we don't sample outside the image bounds
+        const sampleX = constrain(x * voxelSize, 0, img.width - 1);
+        const sampleY = constrain(y * voxelSize, 0, img.height - 1);
+        c = img.get(sampleX, sampleY);
       }
 
       // Extract the brightness (luminance) of the color using the red, green, blue channels
@@ -262,11 +353,12 @@ function generateVoxels() {
         ? map(brightnessVal, 0, 255, -depthScale, depthScale)
         : map(brightnessVal, 0, 255, depthScale, -depthScale);
 
-      // Add the voxel data (position, color, and z-depth) to the array
+      // Position voxels based on actual grid position with natural centering
+      // The voxels will be placed within the actual image dimensions without distortion
       voxels.push({ 
-        x: x * voxelSize - cols * voxelSize / 2, // Center the grid
-        y: y * voxelSize - rows * voxelSize / 2, 
-        z: zDepth, // Depth based on brightness and scaling
+        x: x * voxelSize - (cols * voxelSize) / 2,
+        y: y * voxelSize - (rows * voxelSize) / 2,
+        z: zDepth,
         color: c
       });
     }
@@ -364,6 +456,7 @@ function keyPressed() {
     if (selectedVoxels.length > 0) {
       // Store current state in undo stack before modifying
       undoStack.push([...voxels]);
+      redoStack = []; // Clear redo stack
       
       // Mark selected voxels as deleted in editedVoxelsMap
       for (const voxel of selectedVoxels) {
@@ -388,20 +481,101 @@ function keyPressed() {
   
   // Undo with Ctrl+Z
   if (keyIsDown(CONTROL) && key === 'z') {
-    if (undoStack.length > 0) {
-      // Restore the last state from undoStack
-      voxels = undoStack.pop();
-      
-      // Reset the editedVoxelsMap to reflect current voxels
-      updateEditedVoxelsMap();
-      
-      // Clear the selection
-      selectedVoxels = [];
-      selectedColor = null;
-      updateSelectedColorDisplay(null);
-      
-      // Update the canvas
-      redraw();
-    }
+    performUndo();
+  }
+  
+  // Redo with Ctrl+Y
+  if (keyIsDown(CONTROL) && key === 'y') {
+    performRedo();
+  }
+}
+
+// Function to perform undo operation
+function performUndo() {
+  if (undoStack.length > 0) {
+    // Store current state in redo stack before undoing
+    redoStack.push([...voxels]);
+    
+    // Restore the last state from undoStack
+    voxels = undoStack.pop();
+    
+    // Reset the editedVoxelsMap to reflect current voxels
+    updateEditedVoxelsMap();
+    
+    // Clear the selection
+    selectedVoxels = [];
+    selectedColor = null;
+    updateSelectedColorDisplay(null);
+    
+    // Update the canvas
+    redraw();
+  }
+  updateUndoRedoButtonStates();
+}
+
+// Function to perform redo operation
+function performRedo() {
+  if (redoStack.length > 0) {
+    // Store current state in undo stack before redoing
+    undoStack.push([...voxels]);
+    
+    // Restore the last state from redoStack
+    voxels = redoStack.pop();
+    
+    // Reset the editedVoxelsMap to reflect current voxels
+    updateEditedVoxelsMap();
+    
+    // Clear the selection
+    selectedVoxels = [];
+    selectedColor = null;
+    updateSelectedColorDisplay(null);
+    
+    // Update the canvas
+    redraw();
+  }
+  updateUndoRedoButtonStates();
+}
+
+// Function to update the states of undo and redo buttons
+function updateUndoRedoButtonStates() {
+  const undoButton = document.getElementById('undoButton');
+  const redoButton = document.getElementById('redoButton');
+  
+  undoButton.disabled = undoStack.length === 0;
+  redoButton.disabled = redoStack.length === 0;
+}
+
+// Function to recalculate the depth (z) values of voxels based on their current colors
+function recalculateDepthsFromCurrentColors() {
+  // Store current state in undo stack before modifying
+  undoStack.push([...voxels]);
+  redoStack = []; // Clear redo stack
+  
+  // Get current depth scale value
+  const depthScale = parseInt(depthSlider.value);
+  
+  // Update depth for each voxel based on its current color
+  for (const voxel of voxels) {
+    // Extract the brightness (luminance) of the current color
+    const c = voxel.color;
+    const brightnessVal = (red(c) + green(c) + blue(c)) / 3;
+    
+    // Apply the same depth mapping logic as in generateVoxels
+    voxel.z = invertDepth
+      ? map(brightnessVal, 0, 255, -depthScale, depthScale)
+      : map(brightnessVal, 0, 255, depthScale, -depthScale);
+  }
+  
+  // Redraw the scene with the new depth values
+  redraw();
+  console.log('Recalculated depths based on current voxel colors');
+}
+
+// Function to revert to the original image
+function revertToOriginalImage() {
+  if (originalImg) {
+    img = originalImg.get(); // Reset img to the original image
+    updateImageAndVoxels(); // Update the image and regenerate voxels
+    console.log('Reverted to original image');
   }
 }
