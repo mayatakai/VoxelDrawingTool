@@ -20,7 +20,7 @@ canvas {
 
 #sliderContainer {
   position: relative;
-  top: 10px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -36,9 +36,25 @@ canvas {
   color: white;
 }
 
+#depthSliderContainer{
+  position: relative;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  color: white;
+}
+
 #uploadContainer {
   position: relative;
   top: 10px;
+  left: 10px;
+  z-index: 10;
+}
+
+#invertDepthContainer {
+  position: relative;
+  top: 50px;
   left: 10px;
   z-index: 10;
 }
