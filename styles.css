@@ -585,7 +585,232 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 
-/* Responsive design */
+/* View Management Section */
+.view-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.view-buttons button {
+  flex: 1;
+  margin: 0 4px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #4c4c4c;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.view-buttons button:first-child {
+  margin-left: 0;
+}
+
+.view-buttons button:last-child {
+  margin-right: 0;
+}
+
+.view-buttons button:hover {
+  background-color: #666;
+}
+
+/* Modal Dialogs */
+.modal-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  border-radius: 8px;
+  padding: 20px;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.light-mode .dialog-content {
+  background-color: #f0f0f0;
+  color: #1e1e1e;
+}
+
+.dialog-content h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.dialog-content input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background-color: #333;
+  color: white;
+}
+
+.light-mode .dialog-content input[type="text"] {
+  background-color: white;
+  border: 1px solid #ccc;
+  color: black;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dialog-buttons button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background-color: #4c4c4c;
+  color: white;
+}
+
+.dialog-buttons button:hover {
+  background-color: #666;
+}
+
+/* Saved Views List */
+#savedViewsList {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 8px;
+  background-color: #262626;
+}
+
+.light-mode #savedViewsList {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+}
+
+.saved-view-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #444;
+}
+
+.light-mode .saved-view-item {
+  border-bottom: 1px solid #ddd;
+}
+
+.saved-view-item:last-child {
+  border-bottom: none;
+}
+
+.saved-view-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-view-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.saved-view-actions button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 5px;
+}
+
+.saved-view-actions button:hover {
+  color: #aaa;
+}
+
+.no-saved-views {
+  text-align: center;
+  color: #888;
+  padding: 10px;
+}
+
+/* Export options */
+.export-options {
+  margin-bottom: 16px;
+}
+
+.option-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+select {
+  padding: 6px;
+  border-radius: 4px;
+  background-color: #333;
+  color: white;
+  border: 1px solid #444;
+}
+
+.light-mode select {
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+}
+
+/* Floating View Management Panel */
+.floating-view-management {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  background-color: rgba(30, 30, 30, 0.7);
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  max-width: 600px;
+  height: 55px;
+}
+
+.light-mode .floating-view-management {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.floating-view-management .view-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.floating-view-management button {
+  padding: 8px 10px;
+  font-size: 13px;
+  width: 130px;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* Responsive adjustments for the floating panel */
 @media screen and (max-width: 768px) {
   .container {
     flex-direction: column;
@@ -603,5 +828,15 @@ input:checked + .slider:before {
   
   .theme-toggle {
     right: 10px;
+  }
+  
+  .floating-view-management {
+    top: 70px; /* Move below the header on mobile */
+    right: 10px;
+    max-width: 220px;
+  }
+  
+  .floating-view-management .view-buttons {
+    flex-direction: column;
   }
 }

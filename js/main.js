@@ -8,6 +8,8 @@ import * as state from './state.js';
 import { setupUI } from './ui.js';
 import { generateVoxels, updateImageAndVoxels } from './voxels.js';
 import { draw, windowResized, keyPressed, performUndo, performRedo } from './render.js';
+import { initCameraControls, setupDoubleClickReset } from './camera.js';
+import { setupViewManagement } from './view-management.js';
 
 /**
  * p5.js setup function - called once at the beginning
@@ -32,12 +34,17 @@ window.setup = function() {
   // Store the canvas element in state for access from other modules
   state.addUIReference(canvasElement, 'canvasElement');
   
-  // Allow mouse interaction to rotate the camera view
-  orbitControl(); // Enables mouse interaction for orbiting around the scene
+  // Initialize our custom camera controls - replaces orbitControl()
+  initCameraControls(canvasElement);
+  setupDoubleClickReset(canvasElement);
+  
   noStroke(); // Disable outline around voxels (no stroke for cubes)
   
   // Initialize the UI
   setupUI();
+  
+  // Initialize view management functionality
+  setupViewManagement();
   
   // Attach the canvas click handler from UI module AFTER setupUI is called
   // This ensures the canvasClickHandler function is defined before we try to use it

@@ -14,6 +14,61 @@
     <button id="themeToggle" class="theme-toggle" title="Toggle Light/Dark Mode">🌓</button>
   </div>
   
+  <!-- View Management Section (Floating) -->
+  <div class="floating-view-management">
+    <div class="view-buttons">
+      <button id="saveViewButton" title="Save current camera view">💾 Save View</button>
+      <button id="loadViewButton" title="Load a saved camera view">📂 Load View</button>
+      <button id="exportImageButton" title="Export view as image">📷 Export Image</button>
+    </div>
+  </div>
+  
+  <!-- View Management Dialogs -->
+  <div id="saveViewDialog" class="modal-dialog" style="display: none;">
+    <div class="dialog-content">
+      <h4>Save View</h4>
+      <input type="text" id="viewNameInput" placeholder="View Name">
+      <div class="dialog-buttons">
+        <button id="saveViewConfirmButton">Save</button>
+        <button id="saveViewCancelButton">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="loadViewDialog" class="modal-dialog" style="display: none;">
+    <div class="dialog-content">
+      <h4>Load View</h4>
+      <div id="savedViewsList">
+        <!-- Saved views will be populated here -->
+        <p class="no-saved-views">No saved views</p>
+      </div>
+      <div class="dialog-buttons">
+        <button id="importViewButton">Import JSON</button>
+        <input type="file" id="importViewInput" accept="application/json" style="display: none;">
+        <button id="loadViewCancelButton">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="exportDialog" class="modal-dialog" style="display: none;">
+    <div class="dialog-content">
+      <h4>Export Image</h4>
+      <div class="export-options">
+        <div class="option-row">
+          <label for="exportFormatSelect">Format:</label>
+          <select id="exportFormatSelect">
+            <option value="png">PNG</option>
+            <option value="jpg">JPG</option>
+          </select>
+        </div>
+      </div>
+      <div class="dialog-buttons">
+        <button id="exportConfirmButton">Export</button>
+        <button id="exportCancelButton">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
   <div class="container">
     <!-- Left Control Panel -->
     <div class="control-panel">
@@ -30,7 +85,7 @@
         <button id="revertToOriginalButton">Revert to Original Image</button>
       </div>
 
-      <!-- 2. Optimize Section -->
+      <!-- 3. Optimize Section -->
       <div class="control-section optimize-section">
         <h3 class="section-title">Optimize</h3>
         <div id="reduceSliderContainer">
@@ -46,7 +101,7 @@
         <button id="removeBackgroundButton">Clear Background</button>
       </div>
       
-      <!-- 3. Transform Section -->
+      <!-- 4. Transform Section -->
       <div class="control-section transform-section">
         <h3 class="section-title">Transform</h3>
         <div id="depthSliderContainer">
@@ -76,7 +131,7 @@
         </div>
       </div>
       
-      <!-- 4. Color Section -->
+      <!-- 5. Color Section -->
       <div class="control-section color-section">
         <h3 class="section-title">Color</h3>
         <div id="colorThresholdSliderContainer">

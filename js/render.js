@@ -4,12 +4,17 @@
  */
 
 import * as state from './state.js';
+import { applyCameraState } from './camera.js';
 
 /**
  * p5.js draw function, called automatically by p5 to render each frame
  */
 export function draw() {
   background(0);
+  
+  // Apply camera transformations before drawing voxels
+  push();
+  applyCameraState();
 
   // Loop through all the voxels and render them in 3D space
   for (let i = 0; i < state.voxels.length; i++) {
@@ -30,6 +35,8 @@ export function draw() {
     box(state.voxelSize); // Create the voxel (a cube)
     pop();
   }
+  
+  pop();
 }
 
 /**

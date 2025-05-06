@@ -236,27 +236,48 @@ export function updateImageAndVoxels() {
  * @returns {Object|null} - The voxel object or null if none found
  */
 export function getVoxelAtClick(mouseX, mouseY) {
-  // Convert mouse coordinates to voxel grid coordinates
-  const localX = floor((mouseX + state.cols * state.voxelSize / 2) / state.voxelSize);
-  const localY = floor((mouseY + state.rows * state.voxelSize / 2) / state.voxelSize);
+  // Import the camera state from camera module
+  import('./camera.js').then(cameraModule => {
+    // Get current camera state if available
+    if (cameraModule.getCameraState) {
+      const cameraState = cameraModule.getCameraState();
+      // Apply inverse camera transformations if available
+      if (cameraState) {
+        // This will be used in future implementations
+      }
+    }
+  }).catch(e => console.error('Camera module not loaded:', e));
 
-  // Check if coordinates are within bounds
-  if (localX < 0 || localX >= state.cols || localY < 0 || localY >= state.rows) {
-    return null;
-  }
-
-  // Find any voxel that matches the x,y grid position
-  for (let i = 0; i < state.voxels.length; i++) {
-    const voxel = state.voxels[i];
-    const voxelGridX = floor((voxel.x + state.cols * state.voxelSize / 2) / state.voxelSize);
-    const voxelGridY = floor((voxel.y + state.rows * state.voxelSize / 2) / state.voxelSize);
+  // Simple distance checking approach
+  // Find the nearest voxel to the mouse position in screen space
+  let closestVoxel = null;
+  let closestDistance = Infinity;
+  
+  // Screen coordinates of the mouse
+  const screenMouseX = mouseX;
+  const screenMouseY = mouseY;
+  
+  // Check each voxel
+  for (const voxel of state.voxels) {
+    // Calculate a simple screen space distance
+    // This is a simplified approach without full camera projection
+    const voxelScreenX = voxel.x;
+    const voxelScreenY = voxel.y;
     
-    if (voxelGridX === localX && voxelGridY === localY) {
-      return voxel;
+    const dx = voxelScreenX - screenMouseX;
+    const dy = voxelScreenY - screenMouseY;
+    
+    // Calculate distance (squared for efficiency)
+    const distance = dx * dx + dy * dy;
+    
+    // If this voxel is closer than the current closest, update
+    if (distance < closestDistance && distance < state.voxelSize * state.voxelSize * 4) {
+      closestDistance = distance;
+      closestVoxel = voxel;
     }
   }
-
-  return null;
+  
+  return closestVoxel;
 }
 
 /**
