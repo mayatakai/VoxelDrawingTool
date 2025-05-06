@@ -9,55 +9,75 @@
   <script src="js/main.js" type="module" defer></script>
 </head>
 <body>
-  <h1>🧱 3D Voxel Art from 2D Image</h1>
+  <div class="header-container">
+    <h1>🧱 3D Voxel Art from 2D Image</h1>
+    <button id="themeToggle" class="theme-toggle" title="Toggle Light/Dark Mode">🌓</button>
+  </div>
   
   <div class="container">
     <!-- Left Control Panel -->
     <div class="control-panel">
-      <!-- File Control Section -->
-      <div class="control-section">
-        <h3 class="section-title">File Controls</h3>
+      <!-- 1. Image Upload Section -->
+      <div class="control-section image-upload-section">
+        <h3 class="section-title">Image Upload</h3>
         <div id="uploadContainer">
           <input type="file" id="uploadButton" accept="image/*">
+          <div id="imagePreviewContainer">
+            <img id="imagePreview" alt="Preview" style="display: none;">
+            <div id="uploadPlaceholder">Select an image to begin</div>
+          </div>
         </div>
         <button id="revertToOriginalButton">Revert to Original Image</button>
       </div>
 
-      <!-- Voxel Settings Section -->
-      <div class="control-section">
-        <h3 class="section-title">Voxel Settings</h3>
-        <div id="sliderContainer">
-          <label for="resolutionSlider">Voxel Size:</label>
-          <input type="range" id="resolutionSlider" min="5" max="50" value="20" step="5">
-        </div>
-
+      <!-- 2. Optimize Section -->
+      <div class="control-section optimize-section">
+        <h3 class="section-title">Optimize</h3>
         <div id="reduceSliderContainer">
-          <label for="reduceSlider">Random Reduce %:</label>
+          <label for="reduceSlider">Auto-Reduce:</label>
           <input type="range" id="reduceSlider" min="0" max="100" value="0" step="10">
         </div>
+
+        <div id="sliderContainer">
+          <label for="resolutionSlider">Voxel Scale:</label>
+          <input type="range" id="resolutionSlider" min="5" max="50" value="20" step="5">
+        </div>
         
+        <button id="removeBackgroundButton">Clean Background</button>
+      </div>
+      
+      <!-- 3. Transform Section -->
+      <div class="control-section transform-section">
+        <h3 class="section-title">Transform</h3>
         <div id="depthSliderContainer">
-          <label for="depthSlider">Depth Scale:</label>
+          <label for="depthSlider">Depth Stretch:</label>
           <input type="range" id="depthSlider" min="50" max="500" value="100" step="10">
         </div>
-      </div>
-      
-      <!-- Edit Tools Section -->
-      <div class="control-section">
-        <h3 class="section-title">Edit Tools</h3>
-        <button id="invertDepthButton">Invert Depth</button>
-        <button id="recalculateDepthsButton">Recalculate Depths</button>
-        <button id="removeBackgroundButton">Remove Background</button>
         
-        <div id="undoRedoContainer">
-          <button id="undoButton" title="Undo (Ctrl+Z)">↩️ Undo</button>
-          <button id="redoButton" title="Redo (Ctrl+Y)">↪️ Redo</button>
+        <div class="toggle-switch">
+          <span>Invert Projection</span>
+          <label class="switch">
+            <input type="checkbox" id="invertDepthToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <button id="recalculateDepthsButton">Recalculate Depths</button>
+        
+        <p class="sub-section-label">Depth Calculation Modes:</p>
+        <div id="depthModeButtons">
+          <button id="brightnessDepthBtn" class="depthModeBtn active">Brightness</button>
+          <button id="redDepthBtn" class="depthModeBtn">Red</button>
+          <button id="greenDepthBtn" class="depthModeBtn">Green</button>
+          <button id="blueDepthBtn" class="depthModeBtn">Blue</button>
+          <button id="saturationDepthBtn" class="depthModeBtn">Saturation</button>
+          <button id="hueDepthBtn" class="depthModeBtn">Hue</button>
         </div>
       </div>
       
-      <!-- Color Selection Section -->
-      <div class="control-section">
-        <h3 class="section-title">Color Selection</h3>
+      <!-- 4. Color Section -->
+      <div class="control-section color-section">
+        <h3 class="section-title">Color</h3>
         <div id="colorThresholdSliderContainer">
           <label for="colorThresholdSlider">Color Similarity:</label>
           <input type="range" id="colorThresholdSlider" min="10" max="150" value="50" step="1">
@@ -66,29 +86,22 @@
         <div id="selectedColorContainer">
           <p>Selected Color: <span id="selectedColorDisplay">None</span></p>
         </div>
-      </div>
-
-      <!-- Color Palettes Section -->
-      <div class="control-section">
-        <h3 class="section-title">Color Palettes</h3>
+        
+        <!-- Palette Theme Buttons -->
         <div id="paletteButtons">
           <button id="pastelPaletteBtn" class="paletteBtn">Pastel</button>
           <button id="neonPaletteBtn" class="paletteBtn">Neon</button>
           <button id="earthPaletteBtn" class="paletteBtn">Earth</button>
           <button id="oceanPaletteBtn" class="paletteBtn">Ocean</button>
         </div>
-      </div>
-      
-      <!-- Depth Calculation Modes -->
-      <div class="control-section">
-        <h3 class="section-title">Depth Mode</h3>
-        <div id="depthModeButtons">
-          <button id="brightnessDepthBtn" class="depthModeBtn active">Brightness</button>
-          <button id="redDepthBtn" class="depthModeBtn">Red</button>
-          <button id="greenDepthBtn" class="depthModeBtn">Green</button>
-          <button id="blueDepthBtn" class="depthModeBtn">Blue</button>
-          <button id="saturationDepthBtn" class="depthModeBtn">Saturation</button>
-          <button id="hueDepthBtn" class="depthModeBtn">Hue</button>
+        
+        <div class="color-grid">
+
+        </div>
+        
+        <div id="undoRedoContainer">
+          <button id="undoButton" title="Undo (Ctrl+Z)">↩️ Undo</button>
+          <button id="redoButton" title="Redo (Ctrl+Y)">↪️ Redo</button>
         </div>
       </div>
     </div>

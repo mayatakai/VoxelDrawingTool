@@ -314,6 +314,12 @@ export function revertToOriginalImage() {
     const img = state.originalImg.get(); // Reset img to the original image
     state.setImg(img);
     updateImageAndVoxels(); // Update the image and regenerate voxels
+    
+    // Hide the image preview if the hideImagePreview function exists
+    if (typeof window.hideImagePreview === 'function') {
+      window.hideImagePreview();
+    }
+    
     console.log('Reverted to original image');
   }
 }

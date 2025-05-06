@@ -15,6 +15,7 @@ export function setupUI() {
   // Get UI elements
   setupSliders();
   setupButtons();
+  setupThemeToggle();
   setupCanvasInteractions();
   setupPaletteButtons();
   setupDepthModeButtons();
@@ -86,10 +87,10 @@ function setupButtons() {
   // File upload button
   document.getElementById('uploadButton').addEventListener('change', handleImageUpload);
 
-  // Invert depth button
-  const invertDepthButton = document.getElementById('invertDepthButton');
-  invertDepthButton.addEventListener('click', () => {
-    state.setInvertDepth(!state.invertDepth);
+  // Invert depth toggle switch
+  const invertDepthToggle = document.getElementById('invertDepthToggle');
+  invertDepthToggle.addEventListener('change', () => {
+    state.setInvertDepth(invertDepthToggle.checked);
     if (state.img) {
       generateVoxels();
     }
@@ -101,8 +102,17 @@ function setupButtons() {
   // Revert to original button
   document.getElementById('revertToOriginalButton').addEventListener('click', revertToOriginalImage);
   
-  // Remove background button
-  document.getElementById('removeBackgroundButton').addEventListener('click', removeBackground);
+  // Clean Background button
+  document.getElementById('removeBackgroundButton').addEventListener('click', () => {
+    if (state.img) {
+      // Store current state before modifying
+      state.updateUndoStack([...state.voxels]);
+      state.clearRedoStack();
+      
+      removeBackground();
+      updateUndoRedoButtonStates(state.undoStack, state.redoStack);
+    }
+  });
 
   // Undo and redo buttons
   document.getElementById('undoButton').addEventListener('click', performUndo);
@@ -110,6 +120,55 @@ function setupButtons() {
   
   // Initialize button states
   updateUndoRedoButtonStates(state.undoStack, state.redoStack);
+  
+  // Setup color buttons in the color grid
+  setupColorButtons();
+}
+
+/**
+ * Set up theme toggle button and functionality
+ */
+function setupThemeToggle() {
+  const themeToggle = document.getElementById('themeToggle');
+  
+  // Check if user has previously set theme preference
+  const savedTheme = localStorage.getItem('theme');
+  
+  // Apply saved theme or default to dark mode
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+    themeToggle.textContent = '🌙'; // Moon emoji for dark mode toggle
+  } else {
+    themeToggle.textContent = '☀️'; // Sun emoji for light mode toggle
+  }
+  
+  // Add click event to toggle theme
+  themeToggle.addEventListener('click', toggleTheme);
+}
+
+/**
+ * Toggle between light and dark theme
+ */
+function toggleTheme() {
+  const themeToggle = document.getElementById('themeToggle');
+  
+  // Toggle body class
+  if (document.body.classList.contains('light-mode')) {
+    // Switch to dark mode
+    document.body.classList.remove('light-mode');
+    themeToggle.textContent = '☀️'; // Sun emoji for light mode toggle
+    localStorage.setItem('theme', 'dark');
+  } else {
+    // Switch to light mode
+    document.body.classList.add('light-mode');
+    themeToggle.textContent = '🌙'; // Moon emoji for dark mode toggle
+    localStorage.setItem('theme', 'light');
+  }
+  
+  // Re-render the scene if needed
+  if (typeof redraw === 'function') {
+    redraw();
+  }
 }
 
 /**
@@ -119,12 +178,51 @@ function setupButtons() {
 function handleImageUpload(event) {
   const file = event.target.files[0];
   if (file) {
-    loadImage(URL.createObjectURL(file), (loadedImage) => {
+    // Show image preview
+    const fileURL = URL.createObjectURL(file);
+    updateImagePreview(fileURL);
+    
+    // Load the image for processing
+    loadImage(fileURL, (loadedImage) => {
       state.setOriginalImg(loadedImage.get());
       updateImageAndVoxels();
     });
   }
 }
+
+/**
+ * Update the image preview with the given file URL
+ * @param {string} fileURL - URL of the image file to preview
+ */
+function updateImagePreview(fileURL) {
+  const imagePreview = document.getElementById('imagePreview');
+  const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+  
+  // Set the image source and show it
+  imagePreview.src = fileURL;
+  imagePreview.style.display = 'block';
+  
+  // Hide the placeholder text
+  uploadPlaceholder.style.display = 'none';
+}
+
+/**
+ * Hide the image preview and show the placeholder
+ */
+function hideImagePreview() {
+  const imagePreview = document.getElementById('imagePreview');
+  const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+  
+  // Hide the image preview
+  imagePreview.style.display = 'none';
+  imagePreview.src = '';
+  
+  // Show the placeholder text
+  uploadPlaceholder.style.display = 'block';
+}
+
+// Make hideImagePreview available globally
+window.hideImagePreview = hideImagePreview;
 
 /**
  * Set up canvas click interactions for selecting voxels
@@ -174,25 +272,43 @@ function setupCanvasInteractions() {
  * Set up palette buttons for color themes
  */
 function setupPaletteButtons() {
-  // Set up default palette buttons
-  document.getElementById('pastelPaletteBtn').addEventListener('click', () => {
-    applyColorPalette(state.pastelPalette);
-  });
+  // Check if old palette buttons exist before trying to access them
+  // Since we refactored the UI, these might not exist anymore, so we need to skip if they don't
+  const pastelBtn = document.getElementById('pastelPaletteBtn');
+  const neonBtn = document.getElementById('neonPaletteBtn');
+  const earthBtn = document.getElementById('earthPaletteBtn');
+  const oceanBtn = document.getElementById('oceanPaletteBtn');
   
-  document.getElementById('neonPaletteBtn').addEventListener('click', () => {
-    applyColorPalette(state.neonPalette);
-  });
+  // Only add event listeners if the buttons exist
+  if (pastelBtn) {
+    pastelBtn.addEventListener('click', () => {
+      applyColorPalette(state.pastelPalette);
+    });
+  }
   
-  document.getElementById('earthPaletteBtn').addEventListener('click', () => {
-    applyColorPalette(state.earthPalette);
-  });
+  if (neonBtn) {
+    neonBtn.addEventListener('click', () => {
+      applyColorPalette(state.neonPalette);
+    });
+  }
   
-  document.getElementById('oceanPaletteBtn').addEventListener('click', () => {
-    applyColorPalette(state.oceanPalette);
-  });
+  if (earthBtn) {
+    earthBtn.addEventListener('click', () => {
+      applyColorPalette(state.earthPalette);
+    });
+  }
+  
+  if (oceanBtn) {
+    oceanBtn.addEventListener('click', () => {
+      applyColorPalette(state.oceanPalette);
+    });
+  }
 
-  // Generate dynamic palette buttons
-  generatePaletteButtons();
+  // Only generate dynamic palette buttons if the container exists
+  const paletteButtonsContainer = document.getElementById('paletteButtons');
+  if (paletteButtonsContainer) {
+    generatePaletteButtons();
+  }
 }
 
 /**
@@ -296,4 +412,53 @@ function setupDepthModeButtons() {
 function setupKeyboardEvents() {
   // We'll use p5.js keyPressed function from render.js
   // This is just a placeholder in case we need to add specific UI-related keyboard events
+}
+
+/**
+ * Set up color buttons in the color grid
+ */
+function setupColorButtons() {
+  // Get all color buttons
+  const colorButtons = document.querySelectorAll('.color-btn');
+  
+  // Add click event to each button
+  colorButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Extract the color from the button's background
+      const computedStyle = window.getComputedStyle(button);
+      const backgroundColor = computedStyle.backgroundColor;
+      
+      // Convert RGB to hex
+      let color;
+      if (backgroundColor.startsWith('rgb')) {
+        // Handle RGB format
+        const rgb = backgroundColor.match(/\d+/g);
+        if (rgb && rgb.length >= 3) {
+          const r = parseInt(rgb[0]);
+          const g = parseInt(rgb[1]);
+          const b = parseInt(rgb[2]);
+          color = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        }
+      } else if (backgroundColor.startsWith('#')) {
+        // Handle hex format
+        color = backgroundColor;
+      }
+      
+      if (color) {
+        // Set as selected color and update display
+        state.setSelectedColor(color);
+        updateSelectedColorDisplay(color);
+        
+        // Find voxels with similar color
+        const colorThreshold = parseInt(state.colorThresholdSlider.value);
+        const newSelectedVoxels = state.voxels.filter(voxel => 
+          calculateColorDistance(voxel.color, color) <= colorThreshold
+        );
+        state.setSelectedVoxels(newSelectedVoxels);
+        
+        // Redraw the scene
+        redraw();
+      }
+    });
+  });
 }
