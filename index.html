@@ -6,6 +6,7 @@
   <title>3D Voxel Art from 2D Image - p5.js</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="js/export.js" type="module" defer></script>
   <script src="js/main.js" type="module" defer></script>
 </head>
 <body>
@@ -166,8 +167,8 @@
       <div class="control-section">
         <h3 class="section-title">Export Files</h3>
           <div id="exportContainer">
-            <button onclick="exportToOBJ()">Export .OBJ</button>
-            <button onclick="exportToPLY()">Export .PLY</button>
+            <button onclick="exportToOBJ()">Export Geometry Only</button>
+            <button onclick="exportToOBJWithMTL()">Export Colored Geometry</button>
         </div>
       </div>
     </div>
