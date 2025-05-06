@@ -9,61 +9,57 @@ import { calculateColorDistance, getBrightness, hexToColor, updateSelectedColorD
 /**
  * Generate voxels based on the loaded image and current settings
  */
-export function generateVoxels() {
+  
+export function generateVoxels(fillExtrusion = false) {
   state.setVoxels([]); // Reset voxels array
 
-  const reducePercentage = parseInt(state.reduceSlider.value); // Get reduction percentage
-  const depthScale = parseInt(state.depthSlider.value); // Get depth scaling value
-
-  // Calculate offsets to center the image in the canvas
-  const xOffset = (width - state.img.width) / 2;
-  const yOffset = (height - state.img.height) / 2;
-
+  const reducePercentage = parseInt(state.reduceSlider.value);
+  const depthScale = parseInt(state.depthSlider.value);
+  
   for (let y = 0; y < state.rows; y++) {
     for (let x = 0; x < state.cols; x++) {
-      // Skip this position if it was deleted by the user
       const key = `${x},${y}`;
-      if (state.editedVoxelsMap[key] === 'deleted') {
-        continue;
-      }
-      
-      // Skip based on random reduction
-      if (random(100) < reducePercentage) {
-        continue;
-      }
+      if (state.editedVoxelsMap[key] === 'deleted') continue;
+      if (random(100) < reducePercentage) continue;
 
-      // Get color for this position - either from colorMap or original image
-      let c;
-      if (state.colorMap[key]) {
-        // Use the custom color if it exists in the colorMap
-        c = state.colorMap[key];
-      } else {
-        // Otherwise use the color from the image
-        // Ensure we don't sample outside the image bounds
-        const sampleX = constrain(x * state.voxelSize, 0, state.img.width - 1);
-        const sampleY = constrain(y * state.voxelSize, 0, state.img.height - 1);
-        c = state.img.get(sampleX, sampleY);
-      }
+      let c = state.colorMap[key] ?? state.img.get(
+        constrain(x * state.voxelSize, 0, state.img.width - 1),
+        constrain(y * state.voxelSize, 0, state.img.height - 1)
+      );
 
-      // Calculate depth value based on the selected depth mode
       const zDepth = calculateDepth(c, depthScale);
+      const xPos = x * state.voxelSize - (state.cols * state.voxelSize) / 2;
+      const yPos = y * state.voxelSize - (state.rows * state.voxelSize) / 2;
 
-      // Position voxels based on actual grid position with natural centering
-      // The voxels will be placed within the actual image dimensions without distortion
-      const newVoxel = { 
-        x: x * state.voxelSize - (state.cols * state.voxelSize) / 2,
-        y: y * state.voxelSize - (state.rows * state.voxelSize) / 2,
-        z: zDepth,
-        color: c
-      };
-      
-      state.voxels.push(newVoxel);
+      if (fillExtrusion) {
+        const step = state.voxelSize;
+        const start = 0;
+        const end = zDepth;
+        const dir = end > start ? 1 : -1;
+
+        for (let z = start; dir * z <= dir * end; z += step * dir) {
+          state.voxels.push({
+            x: xPos,
+            y: yPos,
+            z: z,
+            color: c
+          });
+        }
+      } else {
+        state.voxels.push({
+          x: xPos,
+          y: yPos,
+          z: zDepth,
+          color: c
+        });
+      }
     }
   }
-  
-  redraw(); // Redraw the scene with the new voxels
+
+  redraw();
   updateUndoRedoButtonStates(state.undoStack, state.redoStack);
 }
+
 
 /**
  * Calculate depth value based on color and current depth mode

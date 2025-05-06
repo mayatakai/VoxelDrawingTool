@@ -70,3 +70,12 @@ window.performRedo = performRedo;
  * Initialize any other global settings or configurations here
  */
 console.log('Voxel Drawing Tool initialized!');
+
+
+
+/**
+ * Fill Extrusion Button
+ */
+document.getElementById('fillExtrusionBtn').addEventListener('click', () => {
+  generateVoxels(true); // Pass `true` to enable fill extrusion
+});
