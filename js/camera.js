@@ -185,16 +185,15 @@ export function initCameraControls(canvas) {
     cameraState.prevMouseX = e.clientX;
     cameraState.prevMouseY = e.clientY;
     
-    // Right mouse button for rotation
-    if (e.button === 2) {
-      cameraState.isDragging = true;
+    // Right mouse button or Ctrl+click for panning
+    if (e.button === 2 || (e.button === 0 && e.ctrlKey)) {
+      cameraState.isPanning = true;
       e.preventDefault(); // Prevent browser's context menu
     } 
-    // Left mouse button with Ctrl key for panning
-    else if (e.button === 0 && e.ctrlKey) {
-      cameraState.isPanning = true;
+    // Left mouse button for rotation
+    else if (e.button === 0) {
+      cameraState.isDragging = true;
     }
-    // Left mouse button alone does nothing now
   });
   
   // Update camera on mouse move if dragging
@@ -255,7 +254,7 @@ export function initCameraControls(canvas) {
     redraw();
   }, { passive: false });
   
-  // Prevent context menu on right-click to allow right-click rotation
+  // Prevent context menu on right-click to allow right-click panning
   canvas.addEventListener('contextmenu', (e) => {
     e.preventDefault();
     return false;
@@ -307,9 +306,9 @@ function addCameraTooltips() {
     <div class="tooltip-content">
       <h4>3D View Controls</h4>
       <ul>
-        <li><strong>Right Mouse Drag:</strong> Rotate View</li>
+        <li><strong>Left Mouse Drag:</strong> Rotate View</li>
         <li><strong>Scroll Wheel:</strong> Zoom In/Out</li>
-        <li><strong>Ctrl + Left Mouse Drag:</strong> Pan View</li>
+        <li><strong>Right Mouse Drag:</strong> Pan View</li>
         <li><strong>Double Click:</strong> Reset View</li>
       </ul>
     </div>
