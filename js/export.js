@@ -1,13 +1,21 @@
+/**
+ * export.js
+ * Handles exporting voxel models to different 3D formats
+ */
+
+// Import the state to access voxels and voxelSize
+import * as state from './state.js';
+
 // Export to OBJ
-function exportToOBJ() {
+export function exportToOBJ() {
     let objLines = [];
     let vertexOffset = 1;
   
-    for (const voxel of voxels) {
+    for (const voxel of state.voxels) {
       const x = voxel.x;
       const y = voxel.y;
       const z = voxel.z;
-      const s = voxelSize / 2;
+      const s = state.voxelSize / 2;
   
       // Define 8 vertices of the cube
       const vertices = [
@@ -55,16 +63,15 @@ function exportToOBJ() {
     a.click();
     
     URL.revokeObjectURL(url);
-  }
+}
 
-
-  // Export to PLY
-  function exportToPLY() {
+// Export to PLY
+export function exportToPLY() {
     let plyHeader = [];
     let plyBody = [];
   
-    const vertexCount = voxels.length * 8;
-    const faceCount = voxels.length * 6;
+    const vertexCount = state.voxels.length * 8;
+    const faceCount = state.voxels.length * 6;
     let vertexIndex = 0;
   
     // PLY Header
@@ -82,9 +89,9 @@ function exportToOBJ() {
     plyHeader.push("end_header");
   
     // Generate vertex and face data
-    for (const voxel of voxels) {
+    for (const voxel of state.voxels) {
       const { x, y, z, color } = voxel;
-      const s = voxelSize / 2;
+      const s = state.voxelSize / 2;
   
       const r = Math.round(red(color));
       const g = Math.round(green(color));
@@ -135,4 +142,8 @@ function exportToOBJ() {
     a.click();
   
     URL.revokeObjectURL(url);
-  }
+}
+
+// Expose functions to global scope for the button click handlers
+window.exportToOBJ = exportToOBJ;
+window.exportToPLY = exportToPLY;
