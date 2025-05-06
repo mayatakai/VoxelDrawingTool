@@ -34,28 +34,28 @@
       <div class="control-section optimize-section">
         <h3 class="section-title">Optimize</h3>
         <div id="reduceSliderContainer">
-          <label for="reduceSlider">Auto-Reduce:</label>
+          <label for="reduceSlider">Random Reduction</label>
           <input type="range" id="reduceSlider" min="0" max="100" value="0" step="10">
         </div>
 
         <div id="sliderContainer">
-          <label for="resolutionSlider">Voxel Scale:</label>
+          <label for="resolutionSlider">Voxel Size</label>
           <input type="range" id="resolutionSlider" min="5" max="50" value="20" step="5">
         </div>
         
-        <button id="removeBackgroundButton">Clean Background</button>
+        <button id="removeBackgroundButton">Clear Background</button>
       </div>
       
       <!-- 3. Transform Section -->
       <div class="control-section transform-section">
         <h3 class="section-title">Transform</h3>
         <div id="depthSliderContainer">
-          <label for="depthSlider">Depth Stretch:</label>
+          <label for="depthSlider">Depth Scale</label>
           <input type="range" id="depthSlider" min="50" max="500" value="100" step="10">
         </div>
         
         <div class="toggle-switch">
-          <span>Invert Projection</span>
+          <span>Invert Depth</span>
           <label class="switch">
             <input type="checkbox" id="invertDepthToggle">
             <span class="slider"></span>
@@ -64,14 +64,15 @@
         
         <button id="recalculateDepthsButton">Recalculate Depths</button>
         
-        <p class="sub-section-label">Depth Calculation Modes:</p>
+        <p class="sub-section-label">Depth Modes</p>
         <div id="depthModeButtons">
           <button id="brightnessDepthBtn" class="depthModeBtn active">Brightness</button>
+          <button id="saturationDepthBtn" class="depthModeBtn">Saturation</button>
+          <button id="hueDepthBtn" class="depthModeBtn">Hue</button>
+
           <button id="redDepthBtn" class="depthModeBtn">Red</button>
           <button id="greenDepthBtn" class="depthModeBtn">Green</button>
           <button id="blueDepthBtn" class="depthModeBtn">Blue</button>
-          <button id="saturationDepthBtn" class="depthModeBtn">Saturation</button>
-          <button id="hueDepthBtn" class="depthModeBtn">Hue</button>
         </div>
       </div>
       
@@ -79,7 +80,7 @@
       <div class="control-section color-section">
         <h3 class="section-title">Color</h3>
         <div id="colorThresholdSliderContainer">
-          <label for="colorThresholdSlider">Color Similarity:</label>
+          <label for="colorThresholdSlider">Selection Threshold</label>
           <input type="range" id="colorThresholdSlider" min="10" max="150" value="50" step="1">
         </div>
 
